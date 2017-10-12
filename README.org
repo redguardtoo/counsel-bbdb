@@ -1,10 +1,10 @@
-* counsel-bbdb (v0.0.1)
+* counsel-bbdb (v0.0.2)
 Quick search&input email from [[https://www.emacswiki.org/emacs/CategoryBbdb][BBDB]] database based on [[https://github.com/abo-abo/swiper][ivy-mode]]
 
 Features:
-- Quick
+- Fast
 - Smart, know some ethic groups display family name before given name
-- Robust, only dependency is [[https://github.com/abo-abo/swiper][ivy-mode]]
+- Robust, only dependency is [[https://github.com/abo-abo/swiper][ivy-mode]]. NO API from =bbdb= is used
 
 * Install
 Place counsel-bbdb.el on your =load-path=, and add this to your configuration:
@@ -20,6 +20,15 @@ Ivy 8, Emacs 24.3 is required.
 
 =M-x counsel-bbdb-reload= to reload contacts from BBDB database.
 
+=M-x counsel-bbdb-expand-mail-alias= to expand mail alias.
+
+Mail alias is also called "Contact Group" or "Address Book Group" in other email clients.
+* Tips
+** Insert multiple mail address
+Since =counsel-bbdb= is based ivy-mode. All ivy key bindings are supported.
+
+For example, after =C-u M-x counsel-bbdb-complete-mail=, you can press =C-M-n= to input multiple mail address.
+** Customize the inserted mail address
 You can set =counsel-bbdb-customized-insert= to insert mail in your own way,
 #+begin_src elisp
 (setq counsel-bbdb-customized-insert
