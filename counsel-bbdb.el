@@ -1,4 +1,6 @@
-;; Copyright (C) 2016 Chen Bin
+;;; counsel-bbdb.el --- Quick search&input email from BBDB based on ivy
+
+;; Copyright (C) 2016,2017 Chen Bin
 ;;
 ;; Version: 0.0.2
 ;; Author: Chen Bin <chenbin.sh AT gmail>
