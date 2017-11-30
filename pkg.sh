@@ -1,6 +1,6 @@
 #!/bin/bash
 name=counsel-bbdb
-version=0.0.2
+version=0.0.3
 pkg=$name-$version
 mkdir $pkg
 cp *.el $pkg
