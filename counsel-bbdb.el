@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2016,2017 Chen Bin
 ;;
-;; Version: 0.0.3
+;; Version: 0.0.4
 ;; Author: Chen Bin <chenbin.sh AT gmail>
 ;; URL: https://github.com/redguard/counsel-bbdb
 ;; Package-Requires: ((ivy "0.8.0") (emacs "24.3"))
@@ -193,7 +193,10 @@ Extra argument APPEND-COMMA will append comma after email."
     (counsel-bbdb-reload))
   (ivy-read "Contacts: "
             counsel-bbdb-contacts
+            :initial-input (or (thing-at-point 'symbol) "")
             :action `(lambda (r)
+                       (let* ((points (bounds-of-thing-at-point 'symbol)))
+                         (when points (delete-region (car points) (cdr points))))
                        (counsel-bbdb-insert-one-mail-address r ,append-comma))))
 
 ;;;###autoload
@@ -202,7 +205,7 @@ Extra argument APPEND-COMMA will append comma after email."
   (interactive)
   (unless counsel-bbdb-contacts
     (counsel-bbdb-reload))
-  ;; We just need filter the counel-bbdb-contacts by selected alias
+  ;; We just need filter the `counsel-bbdb-contacts' by selected alias
   (let* ((alias (ivy-read "Alias: "
                           counsel-bbdb-mail-alias-list)))
     (when alias

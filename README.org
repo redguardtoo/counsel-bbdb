@@ -1,4 +1,4 @@
-* counsel-bbdb (v0.0.3)
+* counsel-bbdb (v0.0.4)
 Quick search&input email from [[https://www.emacswiki.org/emacs/CategoryBbdb][BBDB]] database based on [[https://github.com/abo-abo/swiper][ivy-mode]]
 
 Features:
