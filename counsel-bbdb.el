@@ -1,11 +1,11 @@
-;;; counsel-bbdb.el --- Quick search&input email from BBDB based on ivy
+;;; counsel-bbdb.el --- Quick search&input email from BBDB based on Emacs API `completing-read'
 
-;; Copyright (C) 2016,2017 Chen Bin
+;; Copyright (C) 2016-2022 Chen Bin
 ;;
-;; Version: 0.0.4
-;; Author: Chen Bin <chenbin.sh AT gmail>
+;; Version: 0.0.5
+;; Author: Chen Bin <chenbin.sh@gmail.com>
 ;; URL: https://github.com/redguard/counsel-bbdb
-;; Package-Requires: ((ivy "0.8.0") (emacs "24.3"))
+;; Package-Requires: ((emacs "24.3") (bbdb "3.2.2.2"))
 ;; Keywords: mail, abbrev, convenience, matching
 
 ;; This file is NOT part of GNU Emacs.
@@ -29,20 +29,16 @@
 
 ;;; Commentary:
 
-;; Use `ivy-mode' to input email address from BBDB efficiently.
-;; Smart to know some ethic groups display family name before given name
-;; Since It's not using any API from `bbdb', it's always fast and stable.
+;; Input email address from BBDB efficiently using Emacs API `completing-read'.
+;; Smart to know some ethic groups whose family name is before given name.
+;; Since it does not use any API from `bbdb', it's always fast and stable.
 ;;
 ;; `M-x counsel-bbdb-complete-mail' to input email address.
 ;; `M-x counsel-bbdb-reload' to reload contacts from BBDB database.
 ;; `M-x counsel-bbdb-expand-mail-alias' to expand mail alias.  Mail Alias
 ;; is also called "Contact Group" or "Address Book Group" in other email clients.
 ;;
-;; Since counsel-bbdb is based ivy-mode.  All ivy key bindings are supported.
-;; For example, after `C-u M-x counsel-bbdb-complete-mail', you can press
-;; `C-M-n' to input multiple mail address.
-;;
-;; You can also customize `counsel-bbdb-customized-insert' to insert
+;; You can customize `counsel-bbdb-customized-insert' to insert
 ;; email in your own way:
 ;;   (setq counsel-bbdb-customized-insert
 ;;         (lambda (r append-comma)
@@ -57,11 +53,10 @@
 ;;                           mail
 ;;                           (if append-comma ", " " ")))))
 ;;
-;; BTW, `ivy-resume' is fully supported.
 
 ;;; Code:
 
-(require 'ivy)
+(require 'bbdb)
 
 (defvar counsel-bbdb-customized-insert nil
   "User defined function to insert the email.
@@ -120,7 +115,7 @@ If it's nil, the default insertion is executed.")
       (goto-char (point-max)) (insert "\n)")
       (goto-char (point-min))
       (setq raw-records (read (current-buffer))))
-    ;; convert to ivy friendly list with readable keyword:
+    ;; convert to list with readable keyword:
     ;;   - full-name:mail
     ;;   - given-name family-name:mail
     ;;   - :mail
@@ -191,13 +186,17 @@ Extra argument APPEND-COMMA will append comma after email."
   (interactive "P")
   (unless counsel-bbdb-contacts
     (counsel-bbdb-reload))
-  (ivy-read "Contacts: "
-            counsel-bbdb-contacts
-            :initial-input (or (thing-at-point 'symbol) "")
-            :action `(lambda (r)
-                       (let* ((points (bounds-of-thing-at-point 'symbol)))
-                         (when points (delete-region (car points) (cdr points))))
-                       (counsel-bbdb-insert-one-mail-address r ,append-comma))))
+  (let* ((selected (completing-read "Contacts: "
+                                    counsel-bbdb-contacts
+                                    nil
+                                    nil
+                                    (or (thing-at-point 'symbol) ""))))
+    (when selected
+      (let ((points (bounds-of-thing-at-point 'symbol)))
+        (when points
+          (delete-region (car points) (cdr points))))
+      (counsel-bbdb-insert-one-mail-address (assoc selected counsel-bbdb-contacts)
+                                            append-comma))))
 
 ;;;###autoload
 (defun counsel-bbdb-expand-mail-alias ()
@@ -206,8 +205,7 @@ Extra argument APPEND-COMMA will append comma after email."
   (unless counsel-bbdb-contacts
     (counsel-bbdb-reload))
   ;; We just need filter the `counsel-bbdb-contacts' by selected alias
-  (let* ((alias (ivy-read "Alias: "
-                          counsel-bbdb-mail-alias-list)))
+  (let* ((alias (completing-read "Alias: " counsel-bbdb-mail-alias-list)))
     (when alias
       (dolist (r counsel-bbdb-contacts)
         (let* ((r-alias (nth 4 (cdr r))))
